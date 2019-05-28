@@ -1,34 +1,34 @@
-По-видимому:
-1. tab-файл "pc.tab" содержит список записей так, как если бы они шли последовательно в одном общем архиве:
-Структура tab-файла общая:
- Заголовок:
-  uint32 UNK {предположительно, версия}
-  uint32 UNK {предположительно, размер блока для arc-файлов, связанных с этим tab-файлом}
-  uint32 UNK {предположительно, количество arc-файлов, связанных с данным tab-файлов}
- Список записей: {одна за одной, без разделителей}
-  Записи:
-   uint32 UNK {неизвестно, но явно увеличивается, предположительно, связано с mapping-ом архивированных файлов в памяти}
-   uint32 UNK {предположительно, некое смещение}
-   uint32 size {размер файла-члена архива}
-2. arc-файлы "pc0.arc"..."pc4.arc" ...
-// pc0.arc - явно особенный
+п»їLooks like:
+1. tab-file "pc.tab" contains a list of records as if they were sequention in a single common archive:
+General tab-file struct:
+ Header:
+  uint32 UNK {presumably, version}
+  uint32 UNK {presumably, block size for arc-files, connected to this tab-file}
+  uint32 UNK {presumably, amount of arc-files, connected to this tab-file}
+ Records list: {one after another, no delimiters}
+  Record:
+   uint32 UNK {unknown, increasing; presumably, connected with mapping of archived files in the memory}
+   uint32 UNK {presumably some sort of offset}
+   uint32 size {archived file size}
+2. arc-files "pc0.arc"..."pc4.arc" ...
+// pc0.arc - distinguished, contains something else in the beginning of it
 
-Структура sarc-записи:
- Заголовок:
-  uint32 UNK {предположительно, версия}
-  char[4] signature {фиксированная сигнатура "SARC"}
-  uint32 UNK {неизвестно, но есть мнение, что размер некоего файлового информационного блока}
-  uint32 UNK {неизвестно, но предположительно, смещение начала первого файла относительно конца заголовка sarc-записи}
-   // Либо смещение начала первого файла относительно конца заголовка sarc-записи, либо смещение, после которого начинается область данных, выровенное по 16-байтной границе
- Список файловых записей: {одна за одной, без разделителей}
-  Файловая запись:
-   uint32 fileNameSize {размер имени файла}
-   char[fileNameSize] fileName {имя файла}
-   uint32 offset {смещение начала файла относительно начала sarc-записи}
-   uint32 size {размер файла относительно начала sarc-записи}
- // Промежутки между блоками SARC заполняются байтами 0x50
+General sarc-record structure:
+ Header:
+  uint32 UNK {presumably, version}
+  char[4] signature {fixed signature of "SARC"}
+  uint32 UNK {probably, size of some information block for the file}
+  uint32 UNK {probably, offset of the first file, relatively from the end of the sarc-record header}
+   // Or offset of the first file beginning relatively from the end of sarc-record header, or offset, after (!) which data field begins; aligned by 16-bytes border
+ List of file records: {one after another, no delimiters}
+  File record:
+   uint32 fileNameSize {file name size}
+   char[fileNameSize] fileName {file name}
+   uint32 offset {offset of the file beginning relatively from the sarc-record beginning}
+   uint32 size {file size}
+ // Space between SARC blocks are filled with 0x50 bytes
 
-Источники:
+Sources:
 https://forum.xentax.com/viewtopic.php?t=2105
 http://wiki.xentax.com/index.php/Just_Cause_SARC
 http://wiki.xentax.com/index.php/Just_Cause_ARC
@@ -50,13 +50,13 @@ For example, if resource 'A' is 4000 in size, and files are padded in blocks of 
 
 Thus, after the last byte of the resource you will find 96 bytes used to fill the second block. The next resource would then start after those 96, i.e. at the third block.
 
-Имя, размер и смещение ресурсов в arc-файлах может быть найдено в двух связанных с ними файлах
-Первый - .tab, со смещениями и размерами ресурсов
-Второй - .txt, со списком всех имен файлов в архиве arc
-Но список несколько больше, чем количетсво ресурсов в arc-файле, потому что duplicate файлы и файлы без расширений не сохраняются в arc-файле
-Поэтому нужно сначала удалить эти ложные записи
-Список - хронологический, со ссылками на ресурсы, сохранные в arc-файле
-Ресурсы хранятся в arc-файле и дополняются до размера блока, который также записан в tab-файле
+Name, size and offset of resources in arc-files can be found in two files, connected with them:
+First - .tab, with offsets and sizes
+Second - .txt, with the list of all files' names in the .arc archive
+But the list is some bigger, than the amount of resources in the arc-file; that's because duplicate files and files without extensions do not get saved to the arc-file
+So first we need to remove these fake records
+List contains links to the resources in arc-file
+Resources are stored in arc-file and padded up to the block size, which is stated in the tab-file
 */
 
 /*
@@ -68,6 +68,6 @@ Notes:
 
 /*
 TODO (really):
-- pc0.tab - глянуть сопоставления с .tab-файлом (в котором, видимо, оперируют всего 7 тысячами файлов (ровно))
-- флаг генерации текстовых отчетов
+- pc0.tab - seek for mutual link with .tab-file (seems to have exactly 7k files in operation)
+- flag for text reports generation
 */
